@@ -1,0 +1,9 @@
+<resources>
+    <string name="app_name">Pomodoro</string>
+
+
+    <!-- Notificaiton -->
+    <string name="notification_description">This pomodoro notification status channel</string>
+    <string name="notification_channel_id">234124212352</string>
+
+</resources>
