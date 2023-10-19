@@ -97,7 +97,7 @@ fun Home(
                 }
 
                 if (text != ""){
-                    permission.sendNotification(context, R.string.app_name.toString(),
+                    permission.sendNotification(context, context.resources.getString(R.string.app_name),
                         description = text
                     )
                 }

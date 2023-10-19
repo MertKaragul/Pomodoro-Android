@@ -13,10 +13,11 @@ import com.mertkaragul.pomodoro.R
 
 class NotificationService  {
     fun createNotificationChannel(context : Context){
-        val name = R.string.app_name
-        val descriptionText = R.string.notification_description
+        val name = context.resources.getString(R.string.app_name)
+        val descriptionText = context.resources.getString(R.string.notification_description)
         val importance = NotificationManager.IMPORTANCE_DEFAULT
-        val channel = NotificationChannel(R.string.notification_channel_id.toString(), name.toString(), importance).apply {
+
+        val channel = NotificationChannel(context.resources.getString(R.string.notification_channel_id), name.toString(), importance).apply {
             description = descriptionText.toString()
             enableLights(true)
             lightColor = lightColor.green
@@ -27,7 +28,7 @@ class NotificationService  {
     }
 
     fun sendNotification(context : Context, title : String , description : String){
-        val builder = NotificationCompat.Builder(context , R.string.notification_channel_id.toString())
+        val builder = NotificationCompat.Builder(context , context.resources.getString(R.string.notification_channel_id))
             .setSmallIcon(androidx.core.R.drawable.notification_bg)
             .setContentTitle(title)
             .setContentText(description)

@@ -6,13 +6,15 @@ import java.util.Date
 
 class PomodoroTimer : ITimer{
     companion object{
-        val POMODORO_TIME: Long = 1500000
+        val POMODORO_TIME: Long = 10000
+        // 1500000
     }
     private val TEST_POMODORO_TIMER : Long = 10000
     private var countDownTimer : CountDownTimer ?= null
 
 
     override fun createTimer(millisInFuture : Long , isFinished: (Boolean) -> Unit, onTick: (Long) -> Unit) {
+        countDownTimer = null
         countDownTimer = object : CountDownTimer(millisInFuture,1000){
             override fun onTick(p0: Long) {
                 onTick(p0)

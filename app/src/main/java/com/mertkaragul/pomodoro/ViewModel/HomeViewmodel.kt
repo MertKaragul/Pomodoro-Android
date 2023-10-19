@@ -17,61 +17,77 @@ class HomeViewmodel : ViewModel() {
     private val pomodoroTimer = PomodoroTimer()
     private val breakTimer = BreakTimer()
     private val simpleDateFormat = SimpleDateFormat("mm:ss")
+    private var working = false
+
 
     val time = MutableLiveData<String>("00:00")
-    val longTime = MutableLiveData<Long>(0)
+    private var longTime : Long = 0
 
     val timerStatus = MutableLiveData<TimerStatus>(TimerStatus.TIMER_SETUP)
 
     fun start(
         pomodoroTime : Long = POMODORO_TIME,
-        breakTime: Long = BREAK_TIME
+        breakTime : Long = BREAK_TIME
     ){
-        setupTimers(pomodoroTime,breakTime)
-        when(timerStatus.value){
-            TimerStatus.TIMER_SETUP -> {
-                timerStatus.value = TimerStatus.POMODORO_TIME
-                pomodoroTimer.startTimer()
+        if (!working){
+            pomodoroTimer.stopTimer()
+            breakTimer.stopTimer()
+
+            pomodoroSetup(pomodoroTime)
+            breakTimerSetup(breakTime)
+
+            when(timerStatus.value){
+                TimerStatus.TIMER_SETUP -> {
+                    working = true
+                    timerStatus.value = TimerStatus.POMODORO_TIME
+                    pomodoroTimer.startTimer()
+                }
+
+                TimerStatus.POMODORO_TIME -> {
+                    timerStatus.value = TimerStatus.POMODORO_TIME
+                    pomodoroTimer.startTimer()
+                }
+
+                TimerStatus.BREAK_TIME -> {
+                    timerStatus.value = TimerStatus.BREAK_TIME
+                    breakTimer.startTimer()
+                }
+
+                else -> {
+
+                }
             }
-
-            TimerStatus.POMODORO_TIME -> {
-                timerStatus.value = TimerStatus.POMODORO_TIME
-                pomodoroTimer.startTimer()
-            }
-
-            TimerStatus.BREAK_TIME -> {
-                timerStatus.value = TimerStatus.BREAK_TIME
-                breakTimer.startTimer()
-            }
-
-             else -> {
-
-             }
         }
     }
 
     fun pause(status : Boolean){
-        when(timerStatus.value){
-            TimerStatus.POMODORO_TIME -> {
-                pomodoroTimer.stopTimer()
-                if(status){
-                    start(
-                        pomodoroTime = longTime.value ?: POMODORO_TIME
-                    )
+        if (working){
+            when(timerStatus.value){
+                TimerStatus.POMODORO_TIME -> {
+                    pomodoroTimer.stopTimer()
+                    if(status){
+                        working = false
+                        start(
+                            pomodoroTime = longTime
+                        )
+                        working = true
+                    }
                 }
-            }
 
-            TimerStatus.BREAK_TIME -> {
-                breakTimer.stopTimer()
-                if(status){
-                    start(
-                        breakTime = longTime.value ?: BREAK_TIME
-                    )
+                TimerStatus.BREAK_TIME -> {
+                    breakTimer.stopTimer()
+                    if (status){
+                        working = false
+                        start(
+                            breakTime = longTime
+                        )
+                        working = true
+                    }
                 }
-            }
 
-            else -> {
+                else -> {
 
+                }
             }
         }
     }
@@ -79,28 +95,13 @@ class HomeViewmodel : ViewModel() {
     fun cancel(){
         pomodoroTimer.stopTimer()
         breakTimer.stopTimer()
-
         timerStatus.value = TimerStatus.TIMER_SETUP
         time.value = "00:00"
+        working = false
     }
 
 
-    private fun setupTimers(
-        pomodoroTime: Long = POMODORO_TIME,
-        breakTime:Long = BREAK_TIME
-    ){
-        pomodoroTimer.createTimer(
-            pomodoroTime,
-            isFinished = {
-                timerStatus.value = TimerStatus.BREAK_TIME
-                breakTimer.startTimer()
-            },
-            onTick = {
-                time.value = simpleDateFormat.format(Date(it)).toString()
-                longTime.value = it
-            }
-        )
-
+    private fun breakTimerSetup(breakTime:Long){
         breakTimer.createTimer(
             breakTime,
             isFinished = {
@@ -109,7 +110,22 @@ class HomeViewmodel : ViewModel() {
             },
             onTick = {
                 time.value = simpleDateFormat.format(Date(it)).toString()
-                longTime.value = it
+                longTime = it
+            }
+        )
+    }
+
+    private fun pomodoroSetup(pomodoroTime: Long){
+        pomodoroTimer.createTimer(
+            pomodoroTime,
+            isFinished = {
+                timerStatus.value = TimerStatus.BREAK_TIME
+                breakTimer.startTimer()
+            },
+            onTick = {
+                time.value = simpleDateFormat.format(Date(it)).toString()
+                longTime = it
+                println("Tick : $it & longTime : $longTime")
             }
         )
     }

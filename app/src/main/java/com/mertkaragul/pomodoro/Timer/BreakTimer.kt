@@ -11,7 +11,8 @@ class BreakTimer : ITimer {
     private var countDownTimer : CountDownTimer? = null
 
     override fun createTimer(millisInFuture : Long ,isFinished: (Boolean) -> Unit, onTick: (Long) -> Unit) {
-        countDownTimer = object : CountDownTimer(BREAK_TIME,1000){
+        countDownTimer = null
+        countDownTimer = object : CountDownTimer(millisInFuture,1000){
             override fun onTick(p0: Long) {
                 onTick(p0)
             }
